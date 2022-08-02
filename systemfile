@@ -35,6 +35,17 @@ def sharding_linear(nums,private_key):
     else:
         print("Key is not RSA key")
 
+#Importing shards:
+def open_shard(num):
+    f2 = open('Shard[{:s}].txt'.format(num),'r')
+    #Changing string to dict 
+    dict1 = eval(f2.read())
+    #Input dict to RsaKey class object 
+    shardtest1 = object.__new__(RSA.RsaKey)
+    shardtest1.__dict__ = dict1
+    f2.close()
+    return shardtest1
+
 #Combining shards 
 def combine_linear_shards(shard1,shard2):
     #Solving linear equation
@@ -76,6 +87,11 @@ if __name__ == '__main__':
     decrypted = prikey.decrypt(encrypted)
     print("Decrypted message:",decrypted)
     print('\n\n\n')
+
+#Writing public key to file:
+    f = open('Public.txt','w')
+    f.write(public_key)
+    f.close()
     
 #Sharding private key: 
     print("Sharding key\n")
@@ -84,10 +100,27 @@ if __name__ == '__main__':
     print("shard 2:", shards_list[1])
     print("shard 5:", shards_list[4])
     print("\n\n\n")
+
+#Writing shards to file: 
+    for i in range(len(shards_list)):
+        f = open('Shard[{:d}].txt'.format(i+1),'w')
+        f.write(str(shards_list[i].__dict__))
+        f.close()
+
+#Importing shards
+    print("Select shards to import (1-5)")
+    shard1 = input("Enter your first shard: ")
+    shard1 = open_shard(shard1)
+    
+    shard2 = input("Enter your second shard: ")
+    shard2 = open_shard(shard2)
+    print("\n\n\n")
+    
+    
     
 #Reassembles key 
     print("Reassembling key\n")
-    res_key = combine_linear_shards(shards_list[1],shards_list[4])
+    res_key = combine_linear_shards(shard1,shard2)
     print("Reassembled key:",res_key.export_key().decode())
     print("\n\n\n")
     
