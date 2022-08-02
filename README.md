@@ -8,7 +8,7 @@ Crypto.Random\
 Crypto.PublicKey.RSA\
 Crypto.Cipher.PKCS1_OAEP\
 random\
-base64\
+base64
 
 *Process* 
 - Generate key pair 
