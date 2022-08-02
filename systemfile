@@ -1,0 +1,101 @@
+#!/usr/bin/python
+
+import sys
+from Crypto import Random
+from Crypto.PublicKey import RSA
+from Crypto.Cipher import PKCS1_OAEP
+import random
+import base64
+
+#Changing byte string to base64
+def toBase64(string):
+    return base64.b64encode(string)
+
+#Sharding key
+class Shard(RSA.RsaKey):
+    def __init__(self,x,n,d,e,q,p,u):
+        RSA.RsaKey.__init__(self,n=n,d=d,e=e,q=q,p=p,u=u)
+        self.x = x 
+
+def sharding_linear(nums,private_key):
+    if isinstance(private_key,RSA.RsaKey):
+        b = random.randint(1,1000000)
+        li = range(1,1000001)
+        x = random.sample(li,nums)
+        list = []
+        for i in range(0,nums):
+            n = private_key.n
+            d = private_key.d * x[i] + b
+            e = private_key.e
+            q = private_key.q * x[i] + b 
+            p = private_key.p * x[i] + b 
+            u = private_key.u * x[i] + b 
+            list.append(Shard(x=x[i],n=n,d=d,e=e,q=q,p=p,u=u))
+        return list 
+    else:
+        print("Key is not RSA key")
+
+#Combining shards 
+def combine_linear_shards(shard1,shard2):
+    #Solving linear equation
+    d_difference = shard1.d-shard2.d
+    q_difference = shard1.q - shard2.q
+    p_difference = shard1.p - shard2.p
+    u_difference = shard1.u - shard2.u
+    x_difference = shard1.x-shard2.x
+    d = d_difference // x_difference
+    q = q_difference // x_difference
+    p = p_difference // x_difference
+    u = u_difference // x_difference
+    
+    return RSA.RsaKey(d=d,n=shard1.n,e=shard1.e,q=q,p=p,u=u)
+
+
+
+if __name__ == '__main__':
+
+#Generate key pair: 
+    private_key = RSA.generate(256*5,Random.new().read)
+
+    public_key = private_key.public_key().export_key().decode()
+    privateKey = private_key.export_key().decode()
+
+    print('Creating keys:\n')
+    print(public_key, "\n", privateKey)
+    print('\n\n\n')
+
+#Testing key pair: 
+    print('Testing key\n')
+    message = str.encode(input("Enter your message: "))
+    
+    pub_key = PKCS1_OAEP.new(private_key.public_key())
+    encrypted = pub_key.encrypt(message)
+    print("Encrypted message:",toBase64(encrypted)) 
+    
+    prikey = PKCS1_OAEP.new(private_key)
+    decrypted = prikey.decrypt(encrypted)
+    print("Decrypted message:",decrypted)
+    print('\n\n\n')
+    
+#Sharding private key: 
+    print("Sharding key\n")
+    shards_list = sharding_linear(5,private_key)
+    #Getting shards 2 and 5 
+    print("shard 2:", shards_list[1])
+    print("shard 5:", shards_list[4])
+    print("\n\n\n")
+    
+#Reassembles key 
+    print("Reassembling key\n")
+    res_key = combine_linear_shards(shards_list[1],shards_list[4])
+    print("Reassembled key:",res_key.export_key().decode())
+    print("\n\n\n")
+    
+#Testing reassembled key
+    print("Testing reassembled key\n")
+    res_Key = PKCS1_OAEP.new(res_key)
+    result = res_Key.decrypt(encrypted)
+    print("Result",result)
+    print("Checking the if result is equal to the original message")
+    print(result == message)
+    
