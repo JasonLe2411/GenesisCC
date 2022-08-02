@@ -12,8 +12,11 @@ base64
 
 *Process* 
 - Generate key pair 
+- Write public key to file 
 - Put private key into linear equations for sharding (y=ax+b), where 'a' are the elements of the private key like d,q,p and u. 'x' and 'b' are randomized
 Users are given 'y' and the rest are hidden 
+- Write shards to file (shards will not be written as key format since they are not keys yet)
+- Import 2 shards
 - Solve linear equations of 2 shards to find 'a'
 
 *Security* 
