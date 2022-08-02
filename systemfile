@@ -15,7 +15,7 @@ def toBase64(string):
 class Shard(RSA.RsaKey):
     def __init__(self,x,n,d,e,q,p,u):
         RSA.RsaKey.__init__(self,n=n,d=d,e=e,q=q,p=p,u=u)
-        self.x = x 
+        self.__x = x 
 
 def sharding_linear(nums,private_key):
     if isinstance(private_key,RSA.RsaKey):
@@ -42,7 +42,7 @@ def combine_linear_shards(shard1,shard2):
     q_difference = shard1.q - shard2.q
     p_difference = shard1.p - shard2.p
     u_difference = shard1.u - shard2.u
-    x_difference = shard1.x-shard2.x
+    x_difference = shard1._Shard__x-shard2._Shard__x
     d = d_difference // x_difference
     q = q_difference // x_difference
     p = p_difference // x_difference
