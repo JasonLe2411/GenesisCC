@@ -4,11 +4,11 @@ This is a small project to understand RSA algorithm and sharding private keys
 **Building the app**
 
 *Modules & Libraries*
-Crypto.Random 
-Crypto.PublicKey.RSA
-Crypto.Cipher.PKCS1_OAEP
-random
-base64
+Crypto.Random\
+Crypto.PublicKey.RSA\
+Crypto.Cipher.PKCS1_OAEP\
+random\
+base64\
 
 *Process* 
 - Generate key pair 
